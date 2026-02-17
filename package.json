@@ -8,7 +8,7 @@
     ".": "./build/index.js"
   },
   "bin": {
-    "google-workspace-mcp": "./build/index.js"
+    "google-workspace-mcp": "build/index.js"
   },
   "files": [
     "build",
