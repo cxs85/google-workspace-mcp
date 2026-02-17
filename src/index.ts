@@ -16,7 +16,7 @@ import { registerSlidesTools } from './tools/slides.js';
 import { registerPeopleTools } from './tools/people.js';
 
 const SERVER_NAME = 'google-workspace-mcp';
-const SERVER_VERSION = '1.0.0';
+const SERVER_VERSION = '1.0.2';
 
 // Tool definitions for MCP
 const TOOL_DEFINITIONS = [
@@ -579,34 +579,32 @@ const TOOL_DEFINITIONS = [
 
 async function main() {
   console.error('Starting Google Workspace MCP Server...');
+  let allToolsPromise: Promise<Record<string, (args: any) => Promise<any>>> | null = null;
+  const getAllTools = async (): Promise<Record<string, (args: any) => Promise<any>>> => {
+    if (!allToolsPromise) {
+      allToolsPromise = (async () => {
+        const auth = await getAuthenticatedClient();
+        console.error('Authentication successful!');
+        const gmailTools = registerGmailTools(auth);
+        const calendarTools = registerCalendarTools(auth);
+        const driveTools = registerDriveTools(auth);
+        const docsTools = registerDocsTools(auth);
+        const sheetsTools = registerSheetsTools(auth);
+        const slidesTools = registerSlidesTools(auth);
+        const peopleTools = registerPeopleTools(auth);
 
-  // Initialize OAuth client
-  let auth;
-  try {
-    auth = await getAuthenticatedClient();
-    console.error('Authentication successful!');
-  } catch (error) {
-    console.error('Authentication failed:', error);
-    process.exit(1);
-  }
-
-  // Register all tools
-  const gmailTools = registerGmailTools(auth);
-  const calendarTools = registerCalendarTools(auth);
-  const driveTools = registerDriveTools(auth);
-  const docsTools = registerDocsTools(auth);
-  const sheetsTools = registerSheetsTools(auth);
-  const slidesTools = registerSlidesTools(auth);
-  const peopleTools = registerPeopleTools(auth);
-
-  const allTools = {
-    ...gmailTools,
-    ...calendarTools,
-    ...driveTools,
-    ...docsTools,
-    ...sheetsTools,
-    ...slidesTools,
-    ...peopleTools,
+        return {
+          ...gmailTools,
+          ...calendarTools,
+          ...driveTools,
+          ...docsTools,
+          ...sheetsTools,
+          ...slidesTools,
+          ...peopleTools,
+        };
+      })();
+    }
+    return allToolsPromise;
   };
 
   // Create MCP server
@@ -634,6 +632,7 @@ async function main() {
     const { name, arguments: args } = request.params;
 
     try {
+      const allTools = await getAllTools();
       const tool = allTools[name as keyof typeof allTools];
       if (!tool) {
         throw new Error(`Unknown tool: ${name}`);

@@ -1,6 +1,6 @@
 {
-  "name": "@alanx/google-workspace-mcp",
-  "version": "1.0.0",
+  "name": "@alanxchen/google-workspace-mcp",
+  "version": "1.0.2",
   "description": "Unified Google Workspace MCP Server for Gmail, Calendar, Drive, Docs, Sheets, Slides, and People",
   "type": "module",
   "main": "./build/index.js",
@@ -14,7 +14,8 @@
     "build",
     "LICENSE",
     "README.md",
-    "SETUP.md"
+    "SETUP.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsc",
