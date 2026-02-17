@@ -10,6 +10,10 @@ import { getAuthenticatedClient } from './auth.js';
 import { registerGmailTools } from './tools/gmail.js';
 import { registerCalendarTools } from './tools/calendar.js';
 import { registerDriveTools } from './tools/drive.js';
+import { registerDocsTools } from './tools/docs.js';
+import { registerSheetsTools } from './tools/sheets.js';
+import { registerSlidesTools } from './tools/slides.js';
+import { registerPeopleTools } from './tools/people.js';
 
 const SERVER_NAME = 'google-workspace-mcp';
 const SERVER_VERSION = '1.0.0';
@@ -382,6 +386,195 @@ const TOOL_DEFINITIONS = [
       properties: {},
     },
   },
+
+  // Docs tools
+  {
+    name: 'list_doc_structure',
+    description: 'List high-level structure of a Google Doc',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        documentId: { type: 'string', description: 'Google Doc document ID' },
+      },
+      required: ['documentId'],
+    },
+  },
+  {
+    name: 'read_doc_text',
+    description: 'Read plain text content from a Google Doc',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        documentId: { type: 'string', description: 'Google Doc document ID' },
+      },
+      required: ['documentId'],
+    },
+  },
+  {
+    name: 'create_doc',
+    description: 'Create a new Google Doc with optional initial content',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: 'Document title' },
+        content: { type: 'string', description: 'Initial document text (optional)' },
+      },
+      required: ['title'],
+    },
+  },
+  {
+    name: 'append_doc_text',
+    description: 'Append text to the end of a Google Doc',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        documentId: { type: 'string', description: 'Google Doc document ID' },
+        text: { type: 'string', description: 'Text to append' },
+      },
+      required: ['documentId', 'text'],
+    },
+  },
+
+  // Sheets tools
+  {
+    name: 'get_sheet_values',
+    description: 'Read values from a spreadsheet range',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        spreadsheetId: { type: 'string', description: 'Spreadsheet ID' },
+        range: { type: 'string', description: 'A1 range (e.g., Sheet1!A1:C10)' },
+      },
+      required: ['spreadsheetId', 'range'],
+    },
+  },
+  {
+    name: 'update_sheet_values',
+    description: 'Update values in a spreadsheet range',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        spreadsheetId: { type: 'string', description: 'Spreadsheet ID' },
+        range: { type: 'string', description: 'A1 range (e.g., Sheet1!A1:C10)' },
+        values: { type: 'array', items: { type: 'array', items: {} }, description: '2D values array' },
+        valueInputOption: { type: 'string', enum: ['RAW', 'USER_ENTERED'] },
+      },
+      required: ['spreadsheetId', 'range', 'values'],
+    },
+  },
+  {
+    name: 'append_sheet_values',
+    description: 'Append rows to a spreadsheet range',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        spreadsheetId: { type: 'string', description: 'Spreadsheet ID' },
+        range: { type: 'string', description: 'A1 range (e.g., Sheet1!A:C)' },
+        values: { type: 'array', items: { type: 'array', items: {} }, description: '2D values array' },
+        valueInputOption: { type: 'string', enum: ['RAW', 'USER_ENTERED'] },
+      },
+      required: ['spreadsheetId', 'range', 'values'],
+    },
+  },
+  {
+    name: 'create_spreadsheet',
+    description: 'Create a new Google Spreadsheet',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: 'Spreadsheet title' },
+        sheetTitle: { type: 'string', description: 'Initial sheet tab name' },
+      },
+      required: ['title'],
+    },
+  },
+
+  // Slides tools
+  {
+    name: 'get_presentation',
+    description: 'Get metadata and slides for a Google Slides presentation',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        presentationId: { type: 'string', description: 'Presentation ID' },
+      },
+      required: ['presentationId'],
+    },
+  },
+  {
+    name: 'create_presentation',
+    description: 'Create a new Google Slides presentation',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: 'Presentation title' },
+      },
+      required: ['title'],
+    },
+  },
+  {
+    name: 'create_slide',
+    description: 'Create a slide in an existing presentation',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        presentationId: { type: 'string', description: 'Presentation ID' },
+        layout: { type: 'string', description: 'Layout enum, e.g. TITLE_AND_BODY' },
+      },
+      required: ['presentationId'],
+    },
+  },
+
+  // People tools
+  {
+    name: 'list_contacts',
+    description: 'List contacts from Google People',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        pageSize: { type: 'number', description: 'Page size (default 50)' },
+        pageToken: { type: 'string', description: 'Pagination token' },
+      },
+    },
+  },
+  {
+    name: 'search_contacts',
+    description: 'Search contacts by name/email/phone',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Search query' },
+        pageSize: { type: 'number', description: 'Page size (default 20)' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'create_contact',
+    description: 'Create a contact in Google People',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        givenName: { type: 'string', description: 'First name' },
+        familyName: { type: 'string', description: 'Last name' },
+        email: { type: 'string', description: 'Email address' },
+        phone: { type: 'string', description: 'Phone number' },
+        company: { type: 'string', description: 'Company name' },
+      },
+      required: ['givenName'],
+    },
+  },
+  {
+    name: 'get_contact',
+    description: 'Get a contact by People resource name',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        resourceName: { type: 'string', description: 'Resource name like people/c123456789' },
+      },
+      required: ['resourceName'],
+    },
+  },
 ];
 
 async function main() {
@@ -401,11 +594,19 @@ async function main() {
   const gmailTools = registerGmailTools(auth);
   const calendarTools = registerCalendarTools(auth);
   const driveTools = registerDriveTools(auth);
+  const docsTools = registerDocsTools(auth);
+  const sheetsTools = registerSheetsTools(auth);
+  const slidesTools = registerSlidesTools(auth);
+  const peopleTools = registerPeopleTools(auth);
 
   const allTools = {
     ...gmailTools,
     ...calendarTools,
     ...driveTools,
+    ...docsTools,
+    ...sheetsTools,
+    ...slidesTools,
+    ...peopleTools,
   };
 
   // Create MCP server

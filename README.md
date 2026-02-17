@@ -1,6 +1,6 @@
 # Google Workspace MCP Server
 
-A unified Model Context Protocol (MCP) server for Gmail, Google Calendar, and Google Drive. Works with any MCP-compatible client including Manus, OpenClaw, Claude Desktop, Cursor, and more.
+A unified Model Context Protocol (MCP) server for Gmail, Google Calendar, Google Drive, Google Docs, Google Sheets, Google Slides, and Google People. Works with any MCP-compatible client including Manus, OpenClaw, Claude Desktop, Cursor, and more.
 
 ## Features
 
@@ -26,11 +26,34 @@ A unified Model Context Protocol (MCP) server for Gmail, Google Calendar, and Go
 - Export Google Docs/Sheets/Slides
 - Get storage quota
 
+### Docs (4 tools)
+- List document structure
+- Read document text
+- Create docs
+- Append text to docs
+
+### Sheets (4 tools)
+- Read cell ranges
+- Update cell ranges
+- Append rows
+- Create spreadsheets
+
+### Slides (3 tools)
+- Get presentation metadata
+- Create presentations
+- Create slides
+
+### People (4 tools)
+- List contacts
+- Search contacts
+- Create contacts
+- Get contact details
+
 ## Installation
 
 ### Prerequisites
 - Node.js 18 or higher
-- Google Cloud project with Gmail, Calendar, and Drive APIs enabled
+- Google Cloud project with Gmail, Calendar, Drive, Docs, Sheets, Slides, and People APIs enabled
 - OAuth 2.0 credentials
 
 ### Setup
@@ -52,6 +75,10 @@ npm install
       - Gmail API
       - Google Calendar API
       - Google Drive API
+      - Google Docs API
+      - Google Sheets API
+      - Google Slides API
+      - Google People API
    
    d. Go to "APIs & Services" > "OAuth consent screen"
       - Choose "External" user type
@@ -60,6 +87,10 @@ npm install
         - `https://www.googleapis.com/auth/gmail.modify`
         - `https://www.googleapis.com/auth/calendar`
         - `https://www.googleapis.com/auth/drive`
+        - `https://www.googleapis.com/auth/documents`
+        - `https://www.googleapis.com/auth/spreadsheets`
+        - `https://www.googleapis.com/auth/presentations`
+        - `https://www.googleapis.com/auth/contacts`
       - Add yourself as a test user
    
    e. Go to "APIs & Services" > "Credentials"
@@ -135,6 +166,10 @@ Once configured, you can use natural language with your AI assistant:
 - "Find free time in my calendar next week"
 - "List files in my Google Drive modified in the last 7 days"
 - "Share document with sarah@example.com as editor"
+- "Read the content of this Google Doc"
+- "Append these rows to my tracking spreadsheet"
+- "Create a new slide deck for tomorrow's update"
+- "Find contact details for Jane in Google Contacts"
 
 ## Architecture
 
@@ -145,7 +180,11 @@ src/
 └── tools/
     ├── gmail.ts      # Gmail operations
     ├── calendar.ts   # Calendar operations
-    └── drive.ts      # Drive operations
+    ├── drive.ts      # Drive operations
+    ├── docs.ts       # Docs operations
+    ├── sheets.ts     # Sheets operations
+    ├── slides.ts     # Slides operations
+    └── people.ts     # Contacts operations
 ```
 
 ## Security
