@@ -26,12 +26,14 @@ export function registerCalendarTools(auth: OAuth2Client) {
       maxResults?: number;
       timeMin?: string;
       timeMax?: string;
+      detail?: 'summary' | 'full';
     }) => {
       const {
         calendarId = 'primary',
-        maxResults = 10,
+        maxResults = 5,
         timeMin,
         timeMax,
+        detail = 'summary',
       } = args;
 
       const response = await calendar.events.list({
@@ -44,19 +46,33 @@ export function registerCalendarTools(auth: OAuth2Client) {
       });
 
       return {
-        events: response.data.items?.map(event => ({
-          id: event.id,
-          summary: event.summary,
-          description: event.description,
-          location: event.location,
-          start: event.start?.dateTime || event.start?.date,
-          end: event.end?.dateTime || event.end?.date,
-          attendees: event.attendees?.map(a => ({
-            email: a.email,
-            responseStatus: a.responseStatus,
-          })),
-          htmlLink: event.htmlLink,
-        })),
+        mode: detail,
+        events: response.data.items?.map(event => {
+          if (detail === 'full') {
+            return {
+              id: event.id,
+              summary: event.summary,
+              description: event.description,
+              location: event.location,
+              start: event.start?.dateTime || event.start?.date,
+              end: event.end?.dateTime || event.end?.date,
+              attendees: event.attendees?.map(a => ({
+                email: a.email,
+                responseStatus: a.responseStatus,
+              })),
+              htmlLink: event.htmlLink,
+            };
+          }
+
+          return {
+            id: event.id,
+            summary: event.summary,
+            start: event.start?.dateTime || event.start?.date,
+            end: event.end?.dateTime || event.end?.date,
+            attendees_count: event.attendees?.length || 0,
+            htmlLink: event.htmlLink,
+          };
+        }),
       };
     },
 

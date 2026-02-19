@@ -10,8 +10,9 @@ export function registerDriveTools(auth: OAuth2Client) {
       query?: string;
       maxResults?: number;
       orderBy?: string;
+      detail?: 'summary' | 'full';
     }) => {
-      const { query, maxResults = 10, orderBy = 'modifiedTime desc' } = args;
+      const { query, maxResults = 5, orderBy = 'modifiedTime desc', detail = 'summary' } = args;
 
       const response = await drive.files.list({
         q: query,
@@ -21,16 +22,29 @@ export function registerDriveTools(auth: OAuth2Client) {
       });
 
       return {
-        files: response.data.files?.map(file => ({
-          id: file.id,
-          name: file.name,
-          mimeType: file.mimeType,
-          size: file.size,
-          createdTime: file.createdTime,
-          modifiedTime: file.modifiedTime,
-          webViewLink: file.webViewLink,
-          owners: file.owners?.map(o => o.emailAddress),
-        })),
+        mode: detail,
+        files: response.data.files?.map(file => {
+          if (detail === 'full') {
+            return {
+              id: file.id,
+              name: file.name,
+              mimeType: file.mimeType,
+              size: file.size,
+              createdTime: file.createdTime,
+              modifiedTime: file.modifiedTime,
+              webViewLink: file.webViewLink,
+              owners: file.owners?.map(o => o.emailAddress),
+            };
+          }
+
+          return {
+            id: file.id,
+            name: file.name,
+            mimeType: file.mimeType,
+            modifiedTime: file.modifiedTime,
+            webViewLink: file.webViewLink,
+          };
+        }),
       };
     },
 

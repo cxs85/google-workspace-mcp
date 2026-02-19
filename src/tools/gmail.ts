@@ -9,9 +9,10 @@ export function registerGmailTools(auth: OAuth2Client) {
     search_emails: async (args: {
       query: string;
       maxResults?: number;
+      detail?: 'summary' | 'full';
     }) => {
-      const { query, maxResults = 10 } = args;
-      
+      const { query, maxResults = 5, detail = 'summary' } = args;
+
       const response = await gmail.users.messages.list({
         userId: 'me',
         q: query,
@@ -22,26 +23,38 @@ export function registerGmailTools(auth: OAuth2Client) {
       const details = [];
 
       for (const message of messages.slice(0, maxResults)) {
-        const detail = await gmail.users.messages.get({
+        const detailResp = await gmail.users.messages.get({
           userId: 'me',
           id: message.id!,
           format: 'metadata',
           metadataHeaders: ['From', 'To', 'Subject', 'Date'],
         });
 
-        const headers = detail.data.payload?.headers || [];
-        const getHeader = (name: string) => 
+        const headers = detailResp.data.payload?.headers || [];
+        const getHeader = (name: string) =>
           headers.find(h => h.name?.toLowerCase() === name.toLowerCase())?.value || '';
 
-        details.push({
-          id: message.id,
-          threadId: message.threadId,
-          from: getHeader('from'),
-          to: getHeader('to'),
-          subject: getHeader('subject'),
-          date: getHeader('date'),
-          snippet: detail.data.snippet,
-        });
+        const snippet = (detailResp.data.snippet || '').slice(0, 200);
+
+        if (detail === 'full') {
+          details.push({
+            id: message.id,
+            threadId: message.threadId,
+            from: getHeader('from'),
+            to: getHeader('to'),
+            subject: getHeader('subject'),
+            date: getHeader('date'),
+            snippet,
+          });
+        } else {
+          details.push({
+            id: message.id,
+            from: getHeader('from'),
+            subject: getHeader('subject'),
+            date: getHeader('date'),
+            snippet: snippet.slice(0, 120),
+          });
+        }
       }
 
       return {
