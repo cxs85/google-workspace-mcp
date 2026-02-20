@@ -46,7 +46,7 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: 'send_email',
-    description: 'Send a new email',
+    description: 'Send a new email (supports optional file attachments)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -55,6 +55,24 @@ const TOOL_DEFINITIONS = [
         body: { type: 'string', description: 'Email body text' },
         cc: { type: 'string', description: 'CC recipients (optional)' },
         bcc: { type: 'string', description: 'BCC recipients (optional)' },
+        attachmentPaths: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Attachment file paths (optional)',
+        },
+        attachments: {
+          type: 'array',
+          description: 'Detailed attachments with optional filename/mimeType overrides',
+          items: {
+            type: 'object',
+            properties: {
+              filePath: { type: 'string', description: 'Attachment file path' },
+              filename: { type: 'string', description: 'Override attachment filename' },
+              mimeType: { type: 'string', description: 'Override attachment MIME type' },
+            },
+            required: ['filePath'],
+          },
+        },
       },
       required: ['to', 'subject', 'body'],
     },
@@ -137,6 +155,35 @@ const TOOL_DEFINITIONS = [
         labelId: { type: 'string', description: 'Label ID to add' },
       },
       required: ['messageId', 'labelId'],
+    },
+  },
+  {
+    name: 'get_unsubscribe_options',
+    description: 'Inspect List-Unsubscribe headers and available unsubscribe methods for an email',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        messageId: { type: 'string', description: 'Gmail message ID' },
+      },
+      required: ['messageId'],
+    },
+  },
+  {
+    name: 'unsubscribe_email',
+    description: 'Attempt unsubscribe via List-Unsubscribe (one-click POST, URL GET, or mailto draft fallback)',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        messageId: { type: 'string', description: 'Gmail message ID' },
+        method: {
+          type: 'string',
+          enum: ['auto', 'url_one_click', 'url_get', 'mailto'],
+          description: 'Unsubscribe strategy (default: auto)',
+        },
+        dryRun: { type: 'boolean', description: 'Preview action without executing it' },
+        allowHttp: { type: 'boolean', description: 'Allow insecure http:// unsubscribe URLs (default: false)' },
+      },
+      required: ['messageId'],
     },
   },
   {

@@ -18,6 +18,7 @@ npx -y @alanxchen/google-workspace-mcp@1.0.2
 ### Gmail (11 tools)
 - Search emails with Gmail query syntax
 - Read, send, and reply to emails
+- Send emails with optional file attachments (`attachmentPaths` or `attachments`)
 - Create drafts
 - Trash emails, mark as read/unread
 - List and manage labels
